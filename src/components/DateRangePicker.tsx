@@ -18,8 +18,9 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
   });
   const [endMonth, setEndMonth] = useState(() => {
     const now = new Date();
-    return new Date(now.getFullYear(), now.getMonth(), 1);
+    return new Date(now.getFullYear(), now.getMonth() + 1, 1);
   });
+  const [isPickerVisible, setIsPickerVisible] = useState(false);
 
   useEffect(() => {
     if (startDate && endDate && onChange) {
@@ -66,6 +67,15 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
     return days;
   };
 
+  const formatDate = (date: Date | null): string =>
+    date
+      ? date.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        })
+      : "";
+
   const isWeekend = (date: Date): boolean => {
     const day = date.getDay();
     return day === 0 || day === 6;
@@ -90,15 +100,37 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
   };
 
   const handleMonthChange = (calendar: "start" | "end", month: number) => {
-    const setMonth = calendar === "start" ? setStartMonth : setEndMonth;
-    const currentMonth = calendar === "start" ? startMonth : endMonth;
-    setMonth(new Date(currentMonth.getFullYear(), month, 1));
+    if (calendar === "start") {
+      const updatedStartMonth = new Date(startMonth.getFullYear(), month, 1);
+      setStartMonth(updatedStartMonth);
+
+      // Ensure endMonth is always at least one month ahead
+      if (updatedStartMonth >= endMonth) {
+        setEndMonth(new Date(updatedStartMonth.getFullYear(), month + 1, 1));
+      }
+    } else {
+      setEndMonth(new Date(endMonth.getFullYear(), month, 1));
+    }
   };
 
   const handleYearChange = (calendar: "start" | "end", year: number) => {
-    const setMonth = calendar === "start" ? setStartMonth : setEndMonth;
-    const currentMonth = calendar === "start" ? startMonth : endMonth;
-    setMonth(new Date(year, currentMonth.getMonth(), 1));
+    if (calendar === "start") {
+      const updatedStartMonth = new Date(year, startMonth.getMonth(), 1);
+      setStartMonth(updatedStartMonth);
+
+      // Ensure endMonth is always at least one month ahead
+      if (updatedStartMonth >= endMonth) {
+        setEndMonth(
+          new Date(
+            updatedStartMonth.getFullYear(),
+            updatedStartMonth.getMonth() + 1,
+            1
+          )
+        );
+      }
+    } else {
+      setEndMonth(new Date(year, endMonth.getMonth(), 1));
+    }
   };
 
   const handleRangeSelect = (range: {
@@ -247,24 +279,47 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
   };
 
   return (
-    <div className="p-4 border rounded-lg shadow-sm bg-white">
-      <div className="flex gap-8 mb-4">
-        {renderCalendar(startMonth, true)}
-        {renderCalendar(endMonth, false)}
-      </div>
-      {predefinedRanges.length > 0 && (
-        <div className="border-t pt-4">
-          <div className="flex gap-2 flex-wrap">
-            {predefinedRanges.map((range, index) => (
-              <button
-                key={index}
-                onClick={() => handleRangeSelect(range)}
-                className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded"
-              >
-                {range.label}
-              </button>
-            ))}
+    <div className="relative">
+      <input
+        value={
+          startDate && endDate
+            ? `${formatDate(startDate)} ~ ${formatDate(endDate)}`
+            : ""
+        }
+        readOnly
+        onClick={() => setIsPickerVisible((prev) => !prev)}
+        className="border px-2 py-2 w-full cursor-pointer"
+        placeholder={`MM/dd/yyyy ~ MM/dd/yyyy`}
+      />
+      {isPickerVisible && (
+        <div className="absolute p-4 border rounded-lg shadow-sm bg-white">
+          <div className="flex gap-8 mb-4">
+            {renderCalendar(startMonth, true)}
+            {renderCalendar(endMonth, false)}
           </div>
+          {predefinedRanges.length > 0 && (
+            <div className="border-t pt-4 flex justify-between">
+              <div className="flex gap-2 flex-wrap">
+                {predefinedRanges.map((range, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleRangeSelect(range)}
+                    className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded"
+                  >
+                    {range.label}
+                  </button>
+                ))}
+              </div>
+              <div>
+                <button
+                  onClick={() => setIsPickerVisible(false)}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
