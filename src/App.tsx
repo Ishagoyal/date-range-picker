@@ -17,7 +17,7 @@ function App() {
   ];
   return (
     <div>
-      <h1>Date Range Picker</h1>
+      <h2>Date Range Picker</h2>
       <DateRangePicker
         onChange={handleRangeChange}
         predefinedRanges={predefinedRanges}
