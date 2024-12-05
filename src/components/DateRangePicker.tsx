@@ -88,6 +88,26 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
     setMonth(new Date(year, currentMonth.getMonth(), 1));
   };
 
+  const handleRangeSelect = (range: {
+    label: string;
+    startDate: Date;
+    endDate: Date;
+  }) => {
+    if (range.startDate && range.endDate) {
+      // Update both start and end month views to match the selected range
+      setStartMonth(
+        new Date(range.startDate.getFullYear(), range.startDate.getMonth(), 1)
+      );
+      setEndMonth(
+        new Date(range.endDate.getFullYear(), range.endDate.getMonth(), 1)
+      );
+
+      // Update the selected dates
+      setStartDate(range.startDate);
+      setEndDate(range.endDate);
+    }
+  };
+
   const renderMonthAndYear = (currentMonth: Date, isStartCalendar: boolean) => {
     const calendar = isStartCalendar ? "start" : "end";
     return (
@@ -205,6 +225,21 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
         {renderCalendar(startMonth, true)}
         {renderCalendar(endMonth, false)}
       </div>
+      {predefinedRanges.length > 0 && (
+        <div className="border-t pt-4">
+          <div className="flex gap-2 flex-wrap">
+            {predefinedRanges.map((range, index) => (
+              <button
+                key={index}
+                onClick={() => handleRangeSelect(range)}
+                className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded"
+              >
+                {range.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
