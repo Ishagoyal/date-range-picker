@@ -12,8 +12,6 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
 }) => {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
-  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
-  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [startMonth, setStartMonth] = useState(() => {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), 1);
@@ -59,14 +57,17 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
     const day = date.getDay();
     return day === 0 || day === 6;
   };
-
   const handleDateClick = (date: Date) => {
     if (isWeekend(date)) return;
+
     if (!startDate || (startDate && endDate)) {
+      // If no startDate is set or both dates are selected, reset with the new startDate
       setStartDate(date);
       setEndDate(null);
     } else {
+      // When selecting the endDate
       if (date < startDate) {
+        // If the selected date is before startDate, swap the dates
         setStartDate(date);
         setEndDate(startDate);
       } else {
@@ -75,22 +76,52 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
     }
   };
 
-  const renderMonthAndYear = (currentMonth: Date, isStartCalender: boolean) => {
+  const handleMonthChange = (calendar: "start" | "end", month: number) => {
+    const setMonth = calendar === "start" ? setStartMonth : setEndMonth;
+    const currentMonth = calendar === "start" ? startMonth : endMonth;
+    setMonth(new Date(currentMonth.getFullYear(), month, 1));
+  };
+
+  const handleYearChange = (calendar: "start" | "end", year: number) => {
+    const setMonth = calendar === "start" ? setStartMonth : setEndMonth;
+    const currentMonth = calendar === "start" ? startMonth : endMonth;
+    setMonth(new Date(year, currentMonth.getMonth(), 1));
+  };
+
+  const renderMonthAndYear = (currentMonth: Date, isStartCalendar: boolean) => {
+    const calendar = isStartCalendar ? "start" : "end";
     return (
       <div className="flex justify-between items-center mb-4">
-        <button className="p-1 hover:bg-gray-100 rounded">
+        <button
+          className="p-1 hover:bg-gray-100 rounded"
+          onClick={() =>
+            handleMonthChange(calendar, currentMonth.getMonth() - 1)
+          }
+        >
           {" "}
           <ChevronLeft className="w-4 h-4" />
         </button>
         <div className="flex gap-2">
-          <select>
+          <select
+            value={currentMonth.getMonth()}
+            onChange={(e) =>
+              handleMonthChange(calendar, parseInt(e.target.value))
+            }
+            className="px-2 py-1 border rounded text-sm"
+          >
             {monthNames.map((month, index) => (
               <option key={month} value={index}>
                 {month}
               </option>
             ))}
           </select>
-          <select>
+          <select
+            value={currentMonth.getFullYear()}
+            onChange={(e) =>
+              handleYearChange(calendar, parseInt(e.target.value))
+            }
+            className="px-2 py-1 border rounded text-sm"
+          >
             {years.map((year) => (
               <option key={year} value={year}>
                 {year}
@@ -98,7 +129,12 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
             ))}
           </select>
         </div>
-        <button className="p-1 hover:bg-gray-100 rounded">
+        <button
+          className="p-1 hover:bg-gray-100 rounded"
+          onClick={() =>
+            handleMonthChange(calendar, currentMonth.getMonth() + 1)
+          }
+        >
           {" "}
           <ChevronRight className="w-4 h-4" />
         </button>
@@ -132,7 +168,9 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
             }
 
             const isSelected =
-              startDate && endDate && date >= startDate && date <= endDate;
+              startDate &&
+              ((endDate && date >= startDate && date <= endDate) || // Range is selected
+                (!endDate && date.toDateString() === startDate.toDateString())); // Only startDate is selected
             const isWeekendDate = isWeekend(date);
 
             return (
