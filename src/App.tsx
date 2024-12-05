@@ -16,8 +16,8 @@ function App() {
     },
   ];
   return (
-    <div>
-      <h2>Date Range Picker</h2>
+    <div className="p-8 grid gap-4 justify-center">
+      <div className="text-center">Date Range Picker</div>
       <DateRangePicker
         onChange={handleRangeChange}
         predefinedRanges={predefinedRanges}
