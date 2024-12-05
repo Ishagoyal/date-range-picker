@@ -60,6 +60,21 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
     return day === 0 || day === 6;
   };
 
+  const handleDateClick = (date: Date) => {
+    if (isWeekend(date)) return;
+    if (!startDate || (startDate && endDate)) {
+      setStartDate(date);
+      setEndDate(null);
+    } else {
+      if (date < startDate) {
+        setStartDate(date);
+        setEndDate(startDate);
+      } else {
+        setEndDate(date);
+      }
+    }
+  };
+
   const renderMonthAndYear = (currentMonth: Date, isStartCalender: boolean) => {
     return (
       <div className="flex justify-between items-center mb-4">
