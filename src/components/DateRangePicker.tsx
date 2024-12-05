@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export interface DateRangePickerProps {
-  onChange: (range: [Date, Date], weekends: Date[]) => void;
+  onChange: (range: [string, string], weekends: string[]) => void;
   predefinedRanges: { label: string; startDate: Date; endDate: Date }[];
 }
 
@@ -24,7 +24,13 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
   useEffect(() => {
     if (startDate && endDate && onChange) {
       const weekends = getWeekendDatesInRange(startDate, endDate);
-      onChange([startDate, endDate], weekends);
+      onChange(
+        [
+          startDate.toISOString().split("T")[0],
+          endDate.toISOString().split("T")[0],
+        ],
+        weekends
+      );
     }
   }, [startDate, endDate, onChange]);
 
@@ -115,15 +121,15 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
     }
   };
 
-  const getWeekendDatesInRange = (start: Date, end: Date): Date[] => {
-    const weekends: Date[] = [];
-    const current = new Date(start);
+  const getWeekendDatesInRange = (start: Date, end: Date): string[] => {
+    const weekends: string[] = [];
+    const date = new Date(start);
 
-    while (current <= end) {
-      if (isWeekend(current)) {
-        weekends.push(new Date(current));
+    while (date <= end) {
+      if (isWeekend(date)) {
+        weekends.push(date.toISOString().split("T")[0]);
       }
-      current.setDate(current.getDate() + 1);
+      date.setDate(date.getDate() + 1);
     }
 
     return weekends;

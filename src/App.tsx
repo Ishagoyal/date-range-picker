@@ -15,7 +15,10 @@ function App() {
     },
   ];
 
-  const handleDateRangeChange = (dateRange: [Date, Date], weekends: Date[]) => {
+  const handleDateRangeChange = (
+    dateRange: [string, string],
+    weekends: string[]
+  ) => {
     console.log("Selected range:", dateRange);
     console.log("Weekend dates in range:", weekends);
   };
