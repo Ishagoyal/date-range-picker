@@ -2,7 +2,6 @@ import "./App.css";
 import DateRangePicker from "./components/DateRangePicker";
 
 function App() {
-  const handleRangeChange = (range: [string, string], weekends: string[]) => {};
   const predefinedRanges = [
     {
       label: "Last 7 days",
@@ -15,11 +14,17 @@ function App() {
       endDate: new Date(),
     },
   ];
+
+  const handleDateRangeChange = (dateRange: [Date, Date], weekends: Date[]) => {
+    console.log("Selected range:", dateRange);
+    console.log("Weekend dates in range:", weekends);
+  };
+
   return (
     <div className="p-8 grid gap-4 justify-center">
       <div className="text-center">Date Range Picker</div>
       <DateRangePicker
-        onChange={handleRangeChange}
+        onChange={handleDateRangeChange}
         predefinedRanges={predefinedRanges}
       />
     </div>

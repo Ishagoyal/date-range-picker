@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export interface DateRangePickerProps {
-  onChange: (range: [string, string], weekends: string[]) => void;
+  onChange: (range: [Date, Date], weekends: Date[]) => void;
   predefinedRanges: { label: string; startDate: Date; endDate: Date }[];
 }
 
@@ -20,6 +20,13 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), 1);
   });
+
+  useEffect(() => {
+    if (startDate && endDate && onChange) {
+      const weekends = getWeekendDatesInRange(startDate, endDate);
+      onChange([startDate, endDate], weekends);
+    }
+  }, [startDate, endDate, onChange]);
 
   const monthNames = [
     "January",
@@ -106,6 +113,20 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
       setStartDate(range.startDate);
       setEndDate(range.endDate);
     }
+  };
+
+  const getWeekendDatesInRange = (start: Date, end: Date): Date[] => {
+    const weekends: Date[] = [];
+    const current = new Date(start);
+
+    while (current <= end) {
+      if (isWeekend(current)) {
+        weekends.push(new Date(current));
+      }
+      current.setDate(current.getDate() + 1);
+    }
+
+    return weekends;
   };
 
   const renderMonthAndYear = (currentMonth: Date, isStartCalendar: boolean) => {
